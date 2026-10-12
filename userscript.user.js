@@ -2,9 +2,9 @@
 // @name         YouTube - ufret chord
 // @name:ja      YouTube - ufretコード
 // @namespace    https://greasyfork.org/ja/users/941284-%E3%81%90%E3%82%89%E3%82%93%E3%81%B4
-// @version      0.1
+// @version      0.2
 // @description  show ufret chords on YouTube
-// @description:ja  YouTubeでufretの歌詞を表示する
+// @description:ja  YouTubeでufretのコードを表示する
 // @author       grmpneko
 // @match        https://www.ufret.jp/*
 // @match        https://*.youtube.com/*
@@ -52,11 +52,12 @@ function toggleOverlay() {
     const base = "https://www.ufret.jp/";
     const tabNames = ["search", "chord", "favorite", "options"];
     const pos = GM_getValue("ufret-pos", { left: Math.max(0, innerWidth - 412), top: 0 });
-    const size = GM_getValue("ufret-size", { width: 412, height: innerHeight });
+    const size = GM_getValue("ufret-size", { width: 412, height: Math.round(innerHeight * 0.8) });
     let current = null;
     let drag = null;
     let autoPick = false;
     let favorites = GM_getValue("ufret-fav", []);
+
     const overlay = $C("div", {
         attrs: { id: "ufret-overlay" },
         styles: {
@@ -69,11 +70,13 @@ function toggleOverlay() {
             pointerup: () => GM_setValue("ufret-size", { width: overlay.offsetWidth, height: overlay.offsetHeight })
         }
     });
+
     const closeBtn = $C("button", {
         props: { textContent: "Close" },
         styles: { background: "#f0513c", color: "#fff", border: "none", borderRadius: "4px", padding: "6px 10px", cursor: "pointer" },
         on: { click: () => overlay.remove() }
     });
+
     const header = $C("div", {
         styles: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 7px", background: "#f5f5f5", cursor: "move", touchAction: "none", userSelect: "none" },
         on: {
@@ -95,12 +98,14 @@ function toggleOverlay() {
         }
     });
     header.append($C("strong", { props: { textContent: "ここをドラッグで移動" } }), closeBtn);
+
     const input = $C("input", {
         attrs: { type: "text", placeholder: "弾きたい曲を検索" },
         props: { value: ufretSong },
         styles: { flex: "1", minWidth: "0", padding: "8px", border: "1px solid #ccc", borderRadius: "4px", fontSize: "inherit" },
         on: { keydown: ev => { if (ev.key === "Enter") searchBtn.click(); } }
     });
+
     const searchBtn = $C("button", {
         props: { textContent: "検索" },
         styles: { background: "#2196f3", color: "#fff", border: "none", borderRadius: "4px", padding: "9px 10px", cursor: "pointer" },
@@ -112,18 +117,22 @@ function toggleOverlay() {
             }
         }
     });
+
     const saveBtn = $C("button", {
         props: { textContent: "保存" },
         styles: { background: "#4caf50", color: "#fff", border: "none", borderRadius: "4px", padding: "9px 10px", cursor: "pointer" },
         on: { click: saveCurrent }
     });
+
     const bar = $C("div", {
         styles: { display: "flex", gap: "8px", padding: "8px 7px", borderBottom: "1px solid #eee" }
     });
     bar.append(input, searchBtn, saveBtn);
+
     const tabBar = $C("div", {
         styles: { display: "flex", gap: "6px", padding: "8px 7px", borderBottom: "1px solid #eee" }
     });
+
     const panes = {};
     const tabBtns = {};
     for (const name of tabNames) {
@@ -137,6 +146,7 @@ function toggleOverlay() {
         });
         tabBar.appendChild(tabBtns[name]);
     }
+
     function showTab(name) {
         for (const n of tabNames) {
             panes[n].style.display = n === name ? "block" : "none";
@@ -145,6 +155,7 @@ function toggleOverlay() {
             tabBtns[n].style.borderColor = n === name ? "#ccc" : "transparent";
         }
     }
+
     function pick(btn) {
         const url = btn.getAttribute("href");
         current = { title: btn.textContent, url };
@@ -155,6 +166,7 @@ function toggleOverlay() {
         }));
         showTab("chord");
     }
+
     function renderList(container, items, emptyText) {
         container.textContent = "";
         if (!items.length) {
@@ -175,6 +187,7 @@ function toggleOverlay() {
         }
         container.appendChild(ul);
     }
+
     function renderFavorites() {
         panes.favorite.textContent = "";
         if (!favorites.length) {
@@ -191,6 +204,11 @@ function toggleOverlay() {
                 styles: { flex: "1", minWidth: "0", textAlign: "left", padding: "8px", background: "#fff", color: "#000", border: "none", cursor: "pointer", fontSize: "inherit" },
                 on: { click: () => pick(openBtn) }
             });
+            const watchBtn = $C("button", {
+                props: { textContent: "開く" },
+                styles: { background: "#2196f3", color: "#fff", border: "none", borderRadius: "4px", padding: "6px 10px", cursor: "pointer", fontSize: "inherit" },
+                on: { click: () => { location.href = 'https://www.youtube.com/watch?v=' + fav.videoId; } }
+            });
             const delBtn = $C("button", {
                 props: { textContent: "削除" },
                 styles: { background: "#f0513c", color: "#fff", border: "none", borderRadius: "4px", padding: "6px 10px", cursor: "pointer", fontSize: "inherit" },
@@ -202,16 +220,18 @@ function toggleOverlay() {
                     }
                 }
             });
-            row.append(openBtn, delBtn);
+            row.append(openBtn, watchBtn, delBtn);
             panes.favorite.appendChild(row);
         }
     }
+
     function saveCurrent() {
         if (!current || !ufretVideoId) return;
         const frame = panes.chord.querySelector("iframe");
         if (!frame) return;
         frame.contentWindow.postMessage({ type: "ufret-get-speed" }, "https://www.ufret.jp");
     }
+
     ufretOnSpeed = speed => {
         if (!current || !ufretVideoId) return;
         favorites = favorites.filter(f => f.videoId !== ufretVideoId);
@@ -219,6 +239,7 @@ function toggleOverlay() {
         GM_setValue("ufret-fav", favorites);
         renderFavorites();
     };
+
     function doSearch(auto) {
         const v = encodeURIComponent(input.value.trim());
         if (!v) return;
@@ -237,11 +258,13 @@ function toggleOverlay() {
             if (auto) panes.search.querySelector("ul > li > button")?.click();
         }).catch(() => renderList(panes.search, [], "検索に失敗しました"));
     }
+
     overlay.append(header, bar, tabBar, panes.search, panes.chord, panes.favorite, panes.options);
     document.body.appendChild(overlay);
     renderList(panes.search, [], "");
     renderFavorites();
     showTab("search");
+
     const saved = favorites.find(f => f.videoId === ufretVideoId);
     if (ufretVideoId && saved) {
         Array.from(panes.favorite.querySelectorAll("button[href]")).find(b => b.getAttribute("href") === saved.url)?.click();
@@ -260,6 +283,7 @@ function initUfretFrame() {
     let last = 0;
     let rest = 0;
     let raf = 0;
+
     function tick(t) {
         if (last) {
             rest += speed * (t - last) / 1000;
@@ -272,19 +296,23 @@ function initUfretFrame() {
         last = t;
         raf = speed > 0 && !paused ? requestAnimationFrame(tick) : 0;
     }
+
     function stop() {
         cancelAnimationFrame(raf);
         raf = 0;
     }
+
     function run() {
         stop();
         last = 0;
         rest = 0;
         raf = speed > 0 && !paused ? requestAnimationFrame(tick) : 0;
     }
+
     function readSpeed() {
         return Math.max(0, Number(speedInput.value) || 0);
     }
+
     const speedInput = $C("input", {
         attrs: { type: "number", min: "0", step: "1" },
         props: { value: speed },
@@ -299,29 +327,24 @@ function initUfretFrame() {
             keydown: ev => { if (ev.key === "Enter") speedInput.blur(); }
         }
     });
-    const stopBtn = $C("button", {
-        props: { textContent: "停止" },
-        styles: { marginLeft: "8px", padding: "4px 10px", background: "#f0513c", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer" },
-        on: {
-            click: () => {
-                paused = !paused;
-                stopBtn.textContent = paused ? "再開" : "停止";
-                stopBtn.style.background = paused ? "#4caf50" : "#f0513c";
-                if (paused) stop();
-                else run();
-            }
-        }
-    });
+
     const label = $C("label", {
         props: { textContent: "スクロール速度(px/秒) " },
         styles: { display: "block", padding: "6px 10px", background: "#f5f5f5", fontSize: "14px", color: "#000" }
     });
-    label.append(speedInput, stopBtn);
+    label.append(speedInput);
     container.before(label);
+
+    $S("#my-chord-data")?.addEventListener("click", () => {
+        paused = !paused;
+        run();
+    });
+
     addEventListener("message", e => {
         if (e.data?.type !== "ufret-get-speed") return;
         e.source.postMessage({ type: "ufret-speed", speed: readSpeed() }, e.origin);
     });
+
     run();
 }
 
@@ -331,8 +354,7 @@ if (inUfretFrame) {
 .musical-score-item, .c-tab, .u-hide_pc, .u-mt-20.u-text-center, .p-trial, section.l-section.u-pb-25, footer, .l-breadcrumb { display: none !important; }
 .c-list__text { display: flex; flex-wrap: wrap; gap: 12px; }
 `)
-    $S("#musical-score-header").click(); $S("#function-setting-header").click();$S("#my-chord-data").onclick = null
-
+    $S("#musical-score-header").click(); $S("#function-setting-header").click(); $S("#my-chord-data").onclick = null
     if (document.readyState === "loading") addEventListener("DOMContentLoaded", initUfretFrame);
     else initUfretFrame();
 } else {
