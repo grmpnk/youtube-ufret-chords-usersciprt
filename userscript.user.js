@@ -278,7 +278,7 @@ function initUfretFrame() {
     const container = $S("#container");
     if (!container) return;
     const savedFav = GM_getValue("ufret-fav", []).find(f => f.url === location.href);
-    let speed = Number(savedFav?.speed) || 0;
+    let speed = Number(savedFav?.speed) || 20;
     let paused = false;
     let last = 0;
     let rest = 0;
@@ -409,3 +409,9 @@ if (inUfretFrame) {
         toggleOverlay();
     });
 }
+
+GM_addStyle(`
+#ufret-control-btn > div {
+    line-height: normal;
+}
+`)
