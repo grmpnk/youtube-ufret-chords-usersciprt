@@ -1,6 +1,6 @@
 # Overview
-This Userscript integrates U-Fret (ufret.jp) chord search and display directly into YouTube.
-It allows guitar players to quickly access chords while watching music videos.
+This userscript integrates U-Fret (ufret.jp) chord search and display features directly into YouTube.
+This allows you to quickly check chord information while watching music videos.
 ![screenshot](sample.jpg)
 # Features
 1. **保存(save)ボタン**
