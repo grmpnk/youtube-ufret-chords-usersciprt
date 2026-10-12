@@ -2,7 +2,7 @@
 // @name         YouTube - ufret chord
 // @name:ja      YouTube - ufretコード
 // @namespace    https://greasyfork.org/ja/users/941284-%E3%81%90%E3%82%89%E3%82%93%E3%81%B4
-// @version      0.2
+// @version      0.3
 // @description  show ufret chords on YouTube
 // @description:ja  YouTubeでufretのコードを表示する
 // @author       grmpneko
@@ -157,11 +157,11 @@ function toggleOverlay() {
     }
 
     function pick(btn) {
-        const url = btn.getAttribute("href");
+        const url = btn.dataset.url;
         current = { title: btn.textContent, url };
         panes.chord.textContent = "";
         panes.chord.appendChild($C("iframe", {
-            attrs: { src: url },
+            attrs: { src: url, sandbox: "allow-scripts allow-same-origin allow-forms allow-popups" },
             styles: { width: "100%", height: "100%", border: "none" }
         }));
         showTab("chord");
@@ -177,7 +177,7 @@ function toggleOverlay() {
         for (const item of items) {
             const li = $C("li");
             const btn = $C("button", {
-                attrs: { href: item.url },
+                attrs: { "data-url": item.url },
                 props: { textContent: item.title },
                 styles: { display: "block", width: "100%", textAlign: "left", padding: "10px", background: "#fff", color: "#000", border: "none", borderBottom: "1px solid #eee", cursor: "pointer", fontSize: "inherit" },
                 on: { click: () => pick(btn) }
@@ -199,7 +199,7 @@ function toggleOverlay() {
                 styles: { display: "flex", alignItems: "center", gap: "6px", padding: "4px 7px", borderBottom: "1px solid #eee" }
             });
             const openBtn = $C("button", {
-                attrs: { href: fav.url },
+                attrs: { "data-url": fav.url },
                 props: { textContent: fav.title },
                 styles: { flex: "1", minWidth: "0", textAlign: "left", padding: "8px", background: "#fff", color: "#000", border: "none", cursor: "pointer", fontSize: "inherit" },
                 on: { click: () => pick(openBtn) }
@@ -249,7 +249,7 @@ function toggleOverlay() {
             method: "GET",
             url: `https://www.ufret.jp/search.php?key=${v}`
         }).then(r => {
-            const doc = new DOMParser().parseFromString(r.responseText, "text/html");
+            const doc = new DOMParser().parseFromString(ufretPolicy.createHTML(r.responseText), "text/html");
             const items = [];
             for (const a of doc.querySelectorAll(".c-list > li > a")) {
                 items.push({ title: a.textContent.trim().replace(/\s+/g, " "), url: new URL(a.getAttribute("href"), base).href });
@@ -267,7 +267,7 @@ function toggleOverlay() {
 
     const saved = favorites.find(f => f.videoId === ufretVideoId);
     if (ufretVideoId && saved) {
-        Array.from(panes.favorite.querySelectorAll("button[href]")).find(b => b.getAttribute("href") === saved.url)?.click();
+        Array.from(panes.favorite.querySelectorAll("button[data-url]")).find(b => b.dataset.url === saved.url)?.click();
     } else if (ufretSong) {
         autoPick = true;
         searchBtn.click();
@@ -335,10 +335,12 @@ function initUfretFrame() {
     label.append(speedInput);
     container.before(label);
 
-    $S("#my-chord-data")?.addEventListener("click", () => {
+    $S("#my-chord-data")?.addEventListener("click", ev => {
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
         paused = !paused;
         run();
-    });
+    }, true);
 
     addEventListener("message", e => {
         if (e.data?.type !== "ufret-get-speed") return;
