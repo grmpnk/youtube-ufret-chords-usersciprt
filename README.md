@@ -4,8 +4,8 @@ This allows you to quickly check chord information while watching music videos.
 ![screenshot](sample.jpg)
 # Features
 1. **保存(save)ボタン**
-   When the save button is clicked, the scroll speed and videoId are stored in the Favorites tab.
-   If the video’s URL matches the saved videoId, the saved chords will automatically be displayed in the Chords tab.
+   - When the save button is clicked, the scroll speed and videoId are stored in the Favorites tab.
+     If the video’s URL matches the saved videoId, the saved chords will automatically be displayed in the Chords tab.
 # Installation
 1. **Install Tampermonkey**  
    - Chrome : [Tampermonkey](https://chromewebstore.google.com/detail/tampermonkey-%E3%83%99%E3%83%BC%E3%82%BF%E7%89%88/gcalenpjmijncebpfijmoaglllgpjagf)
