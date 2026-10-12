@@ -1,3 +1,4 @@
+[日本語](README.ja.md)
 # Overview
 This userscript integrates U-Fret (ufret.jp) chord search and display features directly into YouTube.
 This allows you to quickly check chord information while watching music videos.
@@ -12,8 +13,7 @@ This allows you to quickly check chord information while watching music videos.
    - Firefox : [Tampermonkey](https://addons.mozilla.org/ja/firefox/addon/tampermonkey/)
 
 2. **Allow userscript**  
-   Enable “Allow User Scripts” in the Extensions settings. For more details, see the official FAQ.
-   [https://www.tampermonkey.net/faq.php?locale=ja&q=Q209](https://www.tampermonkey.net/faq.php?locale=en&q=Q209)
+   Enable “Allow User Scripts” in the Extensions settings. For more details, see the official [FAQ](https://www.tampermonkey.net/faq.php?locale=en&q=Q209).
 
 3. **Install youtube-ufret-chords-usersciprt**    
    You can install it [Here](https://github.com/grmpnk/youtube-ufret-chords-usersciprt/raw/refs/heads/main/userscript.user.js)
