@@ -3,8 +3,11 @@
 これにより、ミュージックビデオを視聴しながら、コード情報を素早く確認することができます。
 ![screenshot](sample.jpg)
 # 機能
-1. **保存(save)ボタン**
-   - scroll速度、videoIdがfavoriteタブに保存され、動画のURLとvideoIdがマッチしたら自動的にchordタブで保存したchordが表示されます。
+1. **保存ボタン**
+   - `scroll速度`、`コードキー`、`videoId`が**favoriteタブ**に保存され、動画のURLとvideoIdがマッチしたら自動的に**chordタブ**で保存した設定で表示されます。
+2. **optionsタブ**
+   - `常に非表示:` overlayが常に非表示になります。
+   - `import/export:` 保存したコードをシェアできます。(`videoId`とマッチしてない曲を保存します。)
 # インストール
 1. **Tampermonkey をインストールする**  
    - Chrome : [Tampermonkey](https://chromewebstore.google.com/detail/tampermonkey-%E3%83%99%E3%83%BC%E3%82%BF%E7%89%88/gcalenpjmijncebpfijmoaglllgpjagf)
