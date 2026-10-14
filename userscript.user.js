@@ -5,7 +5,7 @@
 // @name:zh-TW   YouTube - ufret和弦
 // @name:ko      YouTube - ufret 코드
 // @namespace    https://greasyfork.org/ja/users/941284-%E3%81%90%E3%82%89%E3%82%93%E3%81%B4
-// @version      0.3
+// @version      1.2
 // @description  show ufret chords on YouTube
 // @description:ja YouTubeでufretの歌詞を表示する
 // @description:zh-CN 在YouTube上显示ufret的和弦谱
