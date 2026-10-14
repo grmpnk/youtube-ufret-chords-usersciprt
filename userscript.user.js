@@ -5,7 +5,7 @@
 // @name:zh-TW   YouTube - ufret和弦
 // @name:ko      YouTube - ufret 코드
 // @namespace    https://greasyfork.org/ja/users/941284-%E3%81%90%E3%82%89%E3%82%93%E3%81%B4
-// @version      1.1
+// @version      0.3
 // @description  show ufret chords on YouTube
 // @description:ja YouTubeでufretの歌詞を表示する
 // @description:zh-CN 在YouTube上显示ufret的和弦谱
@@ -24,6 +24,7 @@
 // @grant        GM_registerMenuCommand
 // @connect      ufret.jp
 // ==/UserScript==
+
 // ==========================================
 // ユーティリティ/ファクトリ関数
 // ==========================================
@@ -52,6 +53,7 @@ let ufretVideoId = "";
 let ufretOnSpeed = null;
 const ufretPolicy = w.trustedTypes?.createPolicy("ufret-html", { createHTML: s => s }) ?? { createHTML: s => s };
 const inUfretFrame = location.hostname === "www.ufret.jp" && top !== self;
+
 // ==========================================
 // 多言語 (default: en)
 // ==========================================
@@ -202,7 +204,7 @@ function refreshLang() {
   else langKey = "en";
 }
 const t = (key, n) => (I18N[langKey]?.[key] ?? I18N.en[key] ?? key).replace("{n}", n);
- 
+
 // hidden=true: オーバーレイを作成するが表示しない(doSearchなどは実行される)
 function toggleOverlay(hidden = false) {
   refreshLang();
@@ -221,7 +223,7 @@ function toggleOverlay(hidden = false) {
   let drag = null;
   let autoPick = false;
   let favorites = GM_getValue("ufret-fav", []);
- 
+
   const overlay = $C("div", {
     attrs: { id: "ufret-overlay" },
     styles: {
@@ -234,13 +236,13 @@ function toggleOverlay(hidden = false) {
       pointerup: () => GM_setValue("ufret-size", { width: overlay.offsetWidth, height: overlay.offsetHeight })
     }
   });
- 
+
   const closeBtn = $C("button", {
     props: { textContent: t("close") },
     styles: { background: "#f0513c", color: "#fff", border: "none", borderRadius: "4px", padding: "6px 10px", cursor: "pointer" },
     on: { click: () => overlay.remove() }
   });
- 
+
   const header = $C("div", {
     styles: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 7px", background: "#f5f5f5", cursor: "move", touchAction: "none", userSelect: "none" },
     on: {
@@ -262,7 +264,7 @@ function toggleOverlay(hidden = false) {
     }
   });
   header.append($C("strong", { props: { textContent: t("drag") } }), closeBtn);
- 
+
   const input = $C("input", {
     attrs: { type: "text", placeholder: t("placeholder") },
     props: { value: ufretSong },
@@ -289,7 +291,7 @@ function toggleOverlay(hidden = false) {
     styles: { display: "flex", gap: "8px", padding: "8px 7px", borderBottom: "1px solid #eee" }
   });
   bar.append(input, searchBtn, saveBtn);
- 
+
   const tabBar = $C("div", {
     styles: { display: "flex", gap: "6px", padding: "8px 7px", borderBottom: "1px solid #eee" }
   });
@@ -306,7 +308,7 @@ function toggleOverlay(hidden = false) {
     });
     tabBar.appendChild(tabBtns[name]);
   }
- 
+
   function showTab(name) {
     for (const n of tabNames) {
       panes[n].style.display = n === name ? "block" : "none";
@@ -315,7 +317,7 @@ function toggleOverlay(hidden = false) {
       tabBtns[n].style.borderColor = n === name ? "#ccc" : "transparent";
     }
   }
- 
+
   function pick(btn) {
     const url = btn.dataset.url;
     current = { title: btn.textContent, url };
@@ -326,7 +328,7 @@ function toggleOverlay(hidden = false) {
     }));
     showTab("chord");
   }
- 
+
   function renderList(container, items, emptyText) {
     container.textContent = "";
     if (!items.length) {
@@ -347,7 +349,7 @@ function toggleOverlay(hidden = false) {
     }
     container.appendChild(ul);
   }
- 
+
   function renderFavorites() {
     panes.favorite.textContent = "";
     if (!favorites.length) {
@@ -384,7 +386,7 @@ function toggleOverlay(hidden = false) {
       panes.favorite.appendChild(row);
     }
   }
- 
+
   // ---------- options tab ----------
   const status = $C("div", { styles: { padding: "4px 0", color: "#555", minHeight: "1.2em" } });
   let statusTimer = 0;
@@ -393,7 +395,7 @@ function toggleOverlay(hidden = false) {
     clearTimeout(statusTimer);
     statusTimer = setTimeout(() => { status.textContent = ""; }, 3000);
   }
- 
+
   const hideCheck = $C("input", {
     attrs: { type: "checkbox", id: "ufret-always-hide" },
     props: { checked: !!GM_getValue("ufret-hide", false) },
@@ -405,7 +407,7 @@ function toggleOverlay(hidden = false) {
     styles: { display: "flex", alignItems: "center", cursor: "pointer" }
   });
   hideLabel.append(hideCheck, document.createTextNode(t("alwaysHide")));
- 
+
   function copyText(text) {
     return navigator.clipboard.writeText(text).catch(() => {
       const ta = $C("textarea", { props: { value: text }, styles: { position: "fixed", opacity: "0" } });
@@ -416,13 +418,13 @@ function toggleOverlay(hidden = false) {
       if (!ok) throw new Error("copy failed");
     });
   }
- 
+
   function exportFav() {
     copyText(JSON.stringify(GM_getValue("ufret-fav", [])))
       .then(() => setStatus(t("exported")))
       .catch(() => setStatus(t("exportFail")));
   }
- 
+
   async function importFav() {
     const parse = s => { try { const a = JSON.parse(s); return Array.isArray(a) ? a : null; } catch (e) { return null; } };
     let arr = null;
@@ -447,7 +449,7 @@ function toggleOverlay(hidden = false) {
     }
     setStatus(t("imported", n));
   }
- 
+
   const ioBtnStyle = { background: "#2196f3", color: "#fff", border: "none", borderRadius: "4px", padding: "8px 14px", cursor: "pointer", fontSize: "inherit" };
   const importBtn = $C("button", {
     attrs: { title: t("importTip") },
@@ -463,18 +465,18 @@ function toggleOverlay(hidden = false) {
   });
   const ioRow = $C("div", { styles: { display: "flex", flexDirection: "row", gap: "8px", marginTop: "10px" } });
   ioRow.append(importBtn, exportBtn);
- 
+
   const optionsBox = $C("div", { styles: { padding: "10px" } });
   optionsBox.append(hideLabel, ioRow, status);
   panes.options.appendChild(optionsBox);
- 
+
   function saveCurrent() {
     if (!current || !ufretVideoId) return;
     const frame = panes.chord.querySelector("iframe");
     if (!frame) return;
     frame.contentWindow.postMessage({ type: "ufret-get-speed" }, "https://www.ufret.jp");
   }
- 
+
   ufretOnSpeed = (speed, chordKey) => {
     if (!current || !ufretVideoId) return;
     favorites = favorites.filter(f => f.videoId !== ufretVideoId);
@@ -482,7 +484,7 @@ function toggleOverlay(hidden = false) {
     GM_setValue("ufret-fav", favorites);
     renderFavorites();
   };
- 
+
   function doSearch(auto) {
     const v = encodeURIComponent(input.value.trim());
     if (!v) return;
@@ -501,13 +503,13 @@ function toggleOverlay(hidden = false) {
       if (auto) panes.search.querySelector("ul > li > button")?.click();
     }).catch(() => renderList(panes.search, [], t("searchFail")));
   }
- 
+
   overlay.append(header, bar, tabBar, panes.search, panes.chord, panes.favorite, panes.options);
   document.body.appendChild(overlay);
   renderList(panes.search, [], "");
   renderFavorites();
   showTab("search");
- 
+
   const saved = favorites.find(f => f.videoId === ufretVideoId);
   if (ufretVideoId && saved) {
     Array.from(panes.favorite.querySelectorAll("button[data-url]")).find(b => b.dataset.url === saved.url)?.click();
@@ -516,7 +518,7 @@ function toggleOverlay(hidden = false) {
     searchBtn.click();
   }
 }
- 
+
 function initUfretFrame() {
   refreshLang();
   const container = $S("#container");
@@ -528,7 +530,7 @@ function initUfretFrame() {
   let last = 0;
   let rest = 0;
   let raf = 0;
- 
+
   function tick(t) {
     if (last) {
       rest += speed * (t - last) / 1000;
@@ -571,7 +573,7 @@ function initUfretFrame() {
       (cur > target ? minus : plus).click();
     }, 100);
   }
- 
+
   const speedInput = $C("input", {
     attrs: { type: "number", min: "0", step: "1" },
     props: { value: speed },
@@ -592,13 +594,13 @@ function initUfretFrame() {
   });
   label.append(speedInput);
   container.before(label);
- 
+
   addEventListener("message", e => {
     if (e.data?.type !== "ufret-get-speed") return;
     e.source.postMessage({ type: "ufret-speed", speed: readSpeed(), chordKey: readKey() }, e.origin);
   });
   if (savedFav && savedFav.chordKey != null && Number.isFinite(Number(savedFav.chordKey))) applyKey(Number(savedFav.chordKey));
- 
+
   const chordData = $S("#my-chord-data");
   if (chordData) {
     chordData.onclick = null;
@@ -610,7 +612,7 @@ function initUfretFrame() {
     });
   }
 }
- 
+
 if (inUfretFrame) {
   GM_addStyle(`
     .c-list__favorite, .l-header, .p-trial.--head, .p-detail-head , .p-set__wrap, .u-mt-8.u-text-center, .c-text__lv4.u-text-center.u-text-bold.u-mt-20,
